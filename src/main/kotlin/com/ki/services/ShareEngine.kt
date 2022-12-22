@@ -33,4 +33,24 @@ class ShareEngine {
         }
         return paymentsByCustomer
     }
+
+    // A simplier version of the previous one without Mutable Lists
+    private fun groupPaymentsByCustomerAlt(payments: Array<Payment>): Map<String, List<Payment>> =
+        payments.groupBy { it.customerId.toString() }
+
+    fun generateShareOrdersAlt(sharePrice: BigDecimal, payments: Array<Payment>): Array<ShareOrder> {
+        fun getTotalSharesFrom(customerPayments: List<Payment>) = customerPayments.fold(0) { acc, payment ->
+            acc + BigDecimal(payment.amount).divide(sharePrice).toInt()
+        }
+
+        return groupPaymentsByCustomerAlt(payments).map { (currentCustomerId, customerPayments) ->
+            // This should be a dataclass with immutable properties
+            ShareOrder().apply {
+                customerId = currentCustomerId.toInt()
+                shares = getTotalSharesFrom(customerPayments)
+            }
+            // If we use the immutable data class
+            // ShareOrderAlt(customerId.toInt(), shares)
+        }.toTypedArray()
+    }
 }

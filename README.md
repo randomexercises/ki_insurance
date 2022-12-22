@@ -23,13 +23,13 @@ mvn package
 You can now call the JAR file directly:
 
 ```
-java -jar target/ki-takehome-java-1.0-SNAPSHOT.jar <path_to_payments_csv> <source> <share_price>
+java -jar target/ki-takehome-kotlin-1.0-SNAPSHOT.jar <path_to_payments_csv> <source> <share_price>
 ```
 
 To see example output:
 
 ```
-java -jar target/ki-takehome-java-1.0-SNAPSHOT.jar card_payments_example.csv card 1.20
+java -jar target/ki-takehome-kotlin-1.0-SNAPSHOT.jar card_payments_example.csv card 1.20
 ```
 
 ## Exercise
@@ -51,7 +51,7 @@ Remember, the module is installed on the platform as a dependency, therefore the
 You can check your implementation by using the example CSV:
 
 ```
-java -jar target/ki-takehome-java-1.0-SNAPSHOT.jar bank_payments_example.csv bank 1.20
+java -jar target/ki-takehome-kotlin-1.0-SNAPSHOT.jar bank_payments_example.csv bank 1.20
 ```
 
 This should produce the result:

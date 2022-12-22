@@ -11,8 +11,16 @@ class Payment {
     var fee = 0
 
     var card: Card? = null
+    var bankAccountId: Int? = null
 
     constructor() {}
+
+    /*
+    * This constructor is here but it should NOT be used.
+    * Unfortunately this was present on the previous implementation and
+    * it might have been used somewhere else.
+    * */
+    @Deprecated(message = "Data structure can change and should not be tightly connected to a CSV structure. Use 'payment' factory instead")
     constructor(data: Array<String>) {
         customerId = data[0].toInt()
         val paymentFeeRate = Config.paymentFeeRate
@@ -27,5 +35,5 @@ class Payment {
     }
 
     val isSuccessful: Boolean
-        get() = card?.status == "processed"
+        get() = bankAccountId != null || card?.status == "processed"
 }

@@ -30,7 +30,7 @@ class PaymentTest {
     }
 
     @Test
-    fun testIsSuccessful() {
+    fun testIsSuccessfulCardPayment() {
         val payment = Payment()
         payment.card = Card()
         payment.card!!.status = "processed"
@@ -38,10 +38,25 @@ class PaymentTest {
     }
 
     @Test
-    fun testIsSuccessfulDeclined() {
+    fun testIsSuccessfulBankPayment() {
+        val payment = Payment()
+        payment.bankAccountId = 123
+        Assert.assertTrue(payment.isSuccessful)
+    }
+
+    @Test
+    fun testIsSuccessfulDeclinedCardPayment() {
         val payment = Payment()
         payment.card = Card()
         payment.card!!.status = "declined"
+        Assert.assertFalse(payment.isSuccessful)
+    }
+
+    @Test
+    fun testIsSuccessfulDeclinedBankPayment() {
+        val payment = Payment()
+        // Can we say that that a bank payment is valid
+        // only when its ID is given?
         Assert.assertFalse(payment.isSuccessful)
     }
 

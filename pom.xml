@@ -39,11 +39,6 @@
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-jdk8</artifactId>
-      <version>${kotlin.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test</artifactId>
       <version>${kotlin.version}</version>
       <scope>test</scope>
@@ -90,7 +85,7 @@
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
-                <mainClass>com.ki.LocalRunner</mainClass>
+                <mainClass>com.ki.Main</mainClass>
                 <classpathPrefix>dependencies/</classpathPrefix>
               </manifest>
             </archive>
@@ -133,6 +128,11 @@
           <execution>
             <id>compile</id>
             <phase>compile</phase>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
             <goals>
               <goal>compile</goal>
             </goals>
@@ -140,6 +140,11 @@
           <execution>
             <id>test-compile</id>
             <phase>test-compile</phase>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
             <goals>
               <goal>test-compile</goal>
             </goals>

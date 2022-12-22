@@ -1,14 +1,19 @@
+@file:JvmName("Main")
+
 package com.ki
 
+import com.ki.models.payment.PaymentTypes
 import com.ki.services.PaymentProcessor
 import com.ki.services.ShareEngine
 import com.opencsv.CSVWriter
 import net.sourceforge.argparse4j.ArgumentParsers
+import net.sourceforge.argparse4j.helper.HelpScreenException
 import net.sourceforge.argparse4j.inf.ArgumentParserException
-import net.sourceforge.argparse4j.inf.Namespace
 import java.io.IOException
 import java.io.StringWriter
 import java.math.BigDecimal
+import java.util.*
+import kotlin.system.exitProcess
 
 object LocalRunner {
 
@@ -18,7 +23,9 @@ object LocalRunner {
             "shares"
         )
         val paymentProcessor = PaymentProcessor()
+        // Extract CSV To Payment object
         val payments = paymentProcessor.getPayments(csvPath, source)
+        // Filter only payments that have "processed" as status
         val filtered = paymentProcessor.verifyPayments(payments)
         val shareEngine = ShareEngine()
         val shareOrders = shareEngine.generateShareOrders(sharePrice, filtered)
@@ -26,6 +33,7 @@ object LocalRunner {
         for (shareOrder in shareOrders) {
             data.add(arrayOf(shareOrder.customerId.toString(), shareOrder.shares.toString()))
         }
+
         return generateCsv(fieldNames, data)
     }
 
@@ -45,20 +53,36 @@ object LocalRunner {
 
 fun main(args: Array<String>) {
     val parser = ArgumentParsers.newFor("LocalRunner").build()
-    parser.addArgument("csv_path").help("Path to the payments CSV file")
-    parser.addArgument("source").help("The source of the payment, currently only 'card' is supported")
-    parser.addArgument("share_price").help("Share price to generate share orders for e.g. '1.30'")
-    var ns: Namespace? = null
-    try {
-        ns = parser.parseArgs(args)
-    } catch (e: ArgumentParserException) {
-        parser.handleError(e)
-        System.exit(1)
+    parser.addArgument("csv_path")
+        .help("Path to the payments CSV file")
+    parser.addArgument("source").choices(
+        PaymentTypes.values()
+        .map { it.name.lowercase(Locale.getDefault()) })
+        .help("The source of the payment")
+    parser.addArgument("share_price")
+        .type(BigDecimal::class.java)
+        .help("Share price to generate share orders for e.g. '1.30'")
+
+    parser.runCatching {
+        parseArgs(args)
+    }.onFailure { ex ->
+        when (ex) {
+            is HelpScreenException -> exitProcess(0)
+            is ArgumentParserException -> parser.handleError(ex)
+            else -> throw ex    // Do not handle other exceptions, same behaviour as the previous implementation
+        }
+        exitProcess(1)
+    }.onSuccess { arguments ->
+        val csvPath = arguments.getString("csv_path")
+        val source = arguments.getString("source")
+
+        check(source != null) { "Source not found" }
+
+        val sharedPrice = BigDecimal(arguments.getString("share_price"))
+
+        // This will fail as before, with a unhandled exception
+        LocalRunner.simulatePlatform(
+            csvPath, source, sharedPrice
+        ).also(::print)
     }
-    val output = LocalRunner.simulatePlatform(
-        ns!!.getString("csv_path"), ns.getString("source"), BigDecimal(
-            ns.getString("share_price")
-        )
-    )
-    println(output)
 }
